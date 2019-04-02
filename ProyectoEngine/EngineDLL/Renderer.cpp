@@ -6,6 +6,8 @@ using namespace std;
 bool Renderer::Start(void* wnd) {
 	cout << "Renderer::Start()" << endl;
 	win = wnd;
+	camType = CameraType::ortho;
+
 	glfwMakeContextCurrent((GLFWwindow*)wnd);
 	if (glewInit() != GLEW_OK) {
 		cout << "Falló al inicializar GLEW\n" << endl;
@@ -14,8 +16,14 @@ bool Renderer::Start(void* wnd) {
 
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-	ProjectionMatrix = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.0f, 100.f);
 	
+	orthoMatrix = glm::ortho(-10.0f, 10.0f, 10.0f,
+							-10.0f, 0.0f, 100.f);
+
+	perspMatrix = glm::perspective(10.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+
+	ProjectionMatrix = orthoMatrix;
+
 	camPos = glm::vec3(0, 0, 0);
 	eyePos = glm::vec3(0, 0, 3);
 
@@ -139,6 +147,32 @@ void Renderer::SetWMatrix(glm::mat4 matrix){
 
 void Renderer::MultiplyWMatrix(glm::mat4 matrix){
 	WorldMatrix *= matrix;
+	UpdateWVP();
+}
+
+void Renderer::SetCameraType(CameraType _camType)
+{
+	camType = _camType;
+	if (camType == CameraType::persp) {
+		ProjectionMatrix = perspMatrix;
+	}
+	if (camType == CameraType::ortho) {
+		ProjectionMatrix = orthoMatrix;
+	}
+
+	UpdateWVP();
+}
+
+void Renderer::SetProjectionMatrix(glm::mat4 projMatrix)
+{
+	ProjectionMatrix = projMatrix;
+	UpdateWVP();
+}
+
+void Renderer::SetViewMatrix(glm::vec3 x, glm::vec3 y, glm::vec3 z)
+{
+	ViewMatrix = glm::lookAt(x,y,z);
+
 	UpdateWVP();
 }
 

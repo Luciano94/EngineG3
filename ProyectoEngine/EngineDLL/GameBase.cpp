@@ -15,6 +15,7 @@ bool GameBase::Start(int h, int w, char* name) {
 		return false;
 	if (!render->Start(window->getWin()))
 		return false;
+	//render->SetCameraType(CameraType::persp);
 	return OnStart();
 }
 
